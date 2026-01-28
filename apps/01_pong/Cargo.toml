@@ -6,8 +6,7 @@ publish = false
 
 [dependencies]
 bevy = { workspace = true }
-rand = { workspace = true }
-tracing = { workspace = true }
+avian2d = { workspace = true }
 
 [target.wasm32-unknown-unknown.dependencies]
 getrandom = { workspace = true }
