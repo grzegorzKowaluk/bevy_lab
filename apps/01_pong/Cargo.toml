@@ -1,0 +1,41 @@
+[package]
+name = "pong"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+bevy = { workspace = true }
+rand = { workspace = true }
+tracing = { workspace = true }
+
+[target.wasm32-unknown-unknown.dependencies]
+getrandom = { workspace = true }
+
+[features]
+default = ["dev_native"]
+
+dev = [
+    "bevy/dynamic_linking",
+    "bevy/bevy_dev_tools",
+    "bevy/bevy_ui_debug",
+    "bevy/track_location",
+]
+
+dev_native = [
+    "dev",
+    "bevy/file_watcher",
+    "bevy/embedded_watcher",
+]
+
+[package.metadata.bevy_cli.release]
+default-features = false
+
+[package.metadata.bevy_cli.web]
+default-features = false
+
+[package.metadata.bevy_cli.web.dev]
+features = ["dev"]
+
+[lints]
+workspace = true

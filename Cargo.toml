@@ -1,0 +1,53 @@
+[workspace]
+members = ["apps/*"]
+resolver = "2"
+
+# -------------------------------------------------------------------------
+# Shared Dependencies
+# -------------------------------------------------------------------------
+# We define versions ONCE here. Your apps will just say "bevy.workspace = true"
+[workspace.dependencies]
+bevy = { version = "0.18", default-features = true }
+rand = "0.9.2"
+tracing = { version = "0.1.44", features = ["max_level_debug", "release_max_level_warn"] }
+getrandom = { version = "0.3.4", features = ["wasm_js"] }
+
+# -------------------------------------------------------------------------
+# Shared Lints (From your snippet)
+# -------------------------------------------------------------------------
+[workspace.lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(bevy_lint)"] }
+
+[workspace.lints.clippy]
+too_many_arguments = "allow"
+type_complexity = "allow"
+nonstandard_macro_braces = "warn"
+
+# -------------------------------------------------------------------------
+# Profiles (MUST be in root)
+# -------------------------------------------------------------------------
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.dev.package.wgpu-types]
+debug-assertions = false
+
+[profile.release]
+codegen-units = 1
+lto = "thin"
+
+[profile.web-release]
+inherits = "release"
+opt-level = "s"
+strip = "debuginfo"
+
+[profile.ci]
+inherits = "dev"
+opt-level = 0
+debug = "line-tables-only"
+codegen-units = 4
+[profile.ci.package."*"]
+opt-level = 0
