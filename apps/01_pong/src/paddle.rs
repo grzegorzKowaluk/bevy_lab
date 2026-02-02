@@ -23,6 +23,7 @@ pub(super) fn plugin(app: &mut App) {
 
 #[derive(Resource, Asset, TypePath, Clone)]
 struct PaddleAssets {
+    #[dependency]
     paddle_texture: Handle<Image>,
 }
 

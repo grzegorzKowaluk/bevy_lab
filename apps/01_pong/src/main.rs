@@ -10,7 +10,7 @@ mod paddle;
 mod scene;
 mod ui;
 
-use crate::asset_tracking::ResourceHandles;
+use crate::asset_tracking::{ResourceHandles, ResourceLoadState};
 use crate::input::RestartAction;
 use avian2d::prelude::Gravity;
 use avian2d::PhysicsPlugins;
@@ -61,6 +61,7 @@ impl Plugin for AppPlugin {
         app.insert_resource(ClearColor(BLUE_900.into()));
         app.insert_resource(Gravity(Vec2::ZERO));
         app.init_state::<AppState>();
+        app.init_state::<AssetState>();
         app.init_resource::<Score>();
         app.init_resource::<WaitTimer>();
         app.init_resource::<MenuTimer>();
@@ -88,11 +89,12 @@ impl Plugin for AppPlugin {
         );
 
         app.add_systems(Startup, setup_camera);
-        app.add_systems(OnEnter(AppState::Menu), reset_score);
         app.add_systems(
             Update,
-            enter_menu.run_if(in_state(AppState::Loading).and(all_assets_loaded)),
+            check_assets.run_if(in_state(AppState::Loading).and(in_state(AssetState::Loading))),
         );
+        app.add_systems(OnEnter(AppState::Menu), reset_score);
+        app.add_systems(OnEnter(AssetState::Done), enter_menu);
         app.add_systems(
             Update,
             tick_menu_timer
@@ -130,6 +132,14 @@ enum AppState {
     Match,
 }
 
+#[derive(States, Debug, Default, Clone, Copy, Eq, PartialEq, Hash, PartialOrd, Ord)]
+enum AssetState {
+    #[default]
+    Loading,
+    Done,
+    Error,
+}
+
 #[derive(Resource, Default, Debug)]
 struct Score {
     left: u32,
@@ -159,7 +169,7 @@ impl Default for MenuTimer {
 
 fn setup_camera(mut commands: Commands) {
     commands.spawn((
-        Camera2d::default(),
+        Camera2d,
         actions!(Camera[(Action::<RestartAction>::new(), bindings![KeyCode::KeyR])]),
     ));
 }
@@ -178,20 +188,14 @@ fn start_waiting(
     next_state.set(AppState::Waiting);
 }
 
-fn all_assets_loaded(resource_handles: Res<ResourceHandles>) -> bool {
-    resource_handles.is_all_done()
-}
-
 fn tick_waiting_timer(
     time: Res<Time>,
     mut timer: ResMut<WaitTimer>,
     mut next_state: ResMut<NextState<AppState>>,
 ) {
     timer.0.tick(time.delta());
-    println!("Tick waiting");
 
     if timer.0.just_finished() {
-        println!("Waiting finished");
         next_state.set(AppState::Match);
     }
 }
@@ -203,9 +207,8 @@ fn tick_menu_timer(
     mut next_state: ResMut<NextState<AppState>>,
 ) {
     menu_timer.0.tick(time.delta());
-    println!("Tick menu");
+
     if menu_timer.0.just_finished() {
-        println!("Menu finished");
         wait_timer.0.reset();
         next_state.set(AppState::Waiting);
     }
@@ -214,4 +217,16 @@ fn tick_menu_timer(
 fn reset_score(mut score: ResMut<Score>) {
     score.left = 0;
     score.right = 0;
+}
+
+fn check_assets(
+    resource_handles: Res<ResourceHandles>,
+    mut next_state: ResMut<NextState<AssetState>>,
+) {
+    info!("Checking assets");
+    match resource_handles.status() {
+        ResourceLoadState::Done => next_state.set(AssetState::Done),
+        ResourceLoadState::Failed(_) => next_state.set(AssetState::Error),
+        ResourceLoadState::Loading => (),
+    }
 }

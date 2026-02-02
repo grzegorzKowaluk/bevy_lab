@@ -1,5 +1,7 @@
+use crate::asset_tracking::{ResourceHandles, ResourceLoadState};
 use crate::scene::GROUND_HEIGHT;
-use crate::{AppState, Score, ScoreChanged};
+use crate::{AppState, AssetState, Score, ScoreChanged};
+use bevy::color::palettes::css::RED;
 use bevy::prelude::*;
 use bevy::text::LineHeight;
 
@@ -11,6 +13,8 @@ pub(super) fn plugin(app: &mut App) {
         },
         (spawn_score_ui, spawn_restart_ui),
     );
+
+    app.add_systems(OnEnter(AssetState::Error), spawn_asset_errors);
     app.add_observer(update_score_ui);
 }
 
@@ -58,4 +62,31 @@ fn update_score_ui(
     mut text: Single<&mut Text, With<ScoreText>>,
 ) {
     text.0 = format!("{} : {}", score.left, score.right);
+}
+
+fn spawn_asset_errors(mut commands: Commands, resource_handles: Res<ResourceHandles>) {
+    let ResourceLoadState::Failed(errors) = resource_handles.status() else {
+        return;
+    };
+
+    commands
+        .spawn((
+            Node {
+                position_type: PositionType::Absolute,
+                width: vw(100),
+                height: vh(100),
+                justify_content: JustifyContent::Center,
+                justify_items: JustifyItems::Center,
+                row_gap: px(10),
+                flex_direction: FlexDirection::Column,
+                ..default()
+            },
+            DespawnOnEnter(AssetState::Done),
+        ))
+        .with_children(|parent| {
+            parent.spawn(Text::new("Failed to load some assets:"));
+            for error in errors {
+                parent.spawn((Text::new(error), TextColor(RED.into())));
+            }
+        });
 }

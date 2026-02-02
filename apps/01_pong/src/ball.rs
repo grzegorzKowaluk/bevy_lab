@@ -14,6 +14,7 @@ pub(super) fn plugin(app: &mut App) {
 
 #[derive(Resource, Asset, TypePath, Clone)]
 struct BallAssets {
+    #[dependency]
     ball_texture: Handle<Image>,
 }
 

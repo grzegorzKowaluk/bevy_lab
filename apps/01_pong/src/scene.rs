@@ -19,10 +19,6 @@ impl Goal {
     pub fn is_left(&self) -> bool {
         !self.0
     }
-
-    pub fn is_right(&self) -> bool {
-        self.0
-    }
 }
 
 fn spawn_ground(

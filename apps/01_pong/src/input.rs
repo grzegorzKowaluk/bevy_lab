@@ -2,8 +2,8 @@ use crate::paddle::Paddle;
 use crate::{AppState, MenuTimer};
 use avian2d::prelude::LinearVelocity;
 use bevy::prelude::*;
-use bevy_enhanced_input::prelude::{Fire, InputAction, InputContextAppExt};
 use bevy_enhanced_input::EnhancedInputPlugin;
+use bevy_enhanced_input::prelude::{Fire, InputAction, InputContextAppExt};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(EnhancedInputPlugin);
