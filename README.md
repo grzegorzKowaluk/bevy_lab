@@ -11,7 +11,7 @@ I'll build all games for windows and tag as a release.
 
 ## 1. Pong
 
-I made a custom version of pong that is meant for 2 players.
+A custom version of pong that is meant for 2 players.
 Paddles are controlled using [W/S] and [ArrowUp/ArrowDown].
 
 That was a great idea to start so small. I learned a lot, mainly that the whole state management isn't that easy
@@ -21,3 +21,7 @@ and testing for different scenarios is really importatnt.
 
 - avian2d compound collider is not working with collider ellipse (https://github.com/avianphysics/avian/issues/369)
 - AI agents couldn't help me with asset tracking and making an asset a dependency (there was a macro for that)
+
+## 2. Snake
+
+A traditional snake with simple sounds. It lacks menus and winning mechanism.

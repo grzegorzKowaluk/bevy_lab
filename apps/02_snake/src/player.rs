@@ -403,7 +403,7 @@ fn check_snake_collisions(
     for segment in segments.0.iter().skip(1) {
         let body_pos = positions.get(*segment).unwrap();
         if head_pos == body_pos {
-            info!("You toutched your own body -> Game over!");
+            info!("You touched your own body -> Game over!");
             next_state.set(AppState::Menu);
             commands.spawn((
                 AudioPlayer::new(global_assets.game_over_sound.clone()),

@@ -1,0 +1,35 @@
+[package]
+name = "runner"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+bevy = { workspace = true }
+avian3d = { workspace = true }
+bevy_enhanced_input = { workspace = true }
+bevy_asset_loader = { workspace = true }
+rand = { workspace = true }
+
+[target.wasm32-unknown-unknown.dependencies]
+getrandom = { workspace = true }
+
+[features]
+default = ["dev_native"]
+
+dev = [
+    "bevy/dynamic_linking",
+    "bevy/bevy_dev_tools",
+    "bevy/bevy_ui_debug",
+    "bevy/track_location",
+    "bevy/debug"
+]
+
+dev_native = [
+    "dev",
+    "bevy/file_watcher",
+    "bevy/embedded_watcher",
+]
+
+[lints]
+workspace = true
